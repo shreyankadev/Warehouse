@@ -1,4 +1,4 @@
-# Project Name
+# Warehouse
 
 Repository name Warehouse
 project name : dropwizard-demo
@@ -18,7 +18,7 @@ Brief description of the project.
 
 # Installation local setup
 
-# Clone the repository
+-Clone the repository
 git clone https://github.com/shreyankadev/Warehouse.git
 
 //Navigate to the project directory
