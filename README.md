@@ -3,7 +3,7 @@
 Repository name Warehouse
 project name : dropwizard-demo
 
-Brief description of the project.
+The project is a Java-based web application built using Dropwizard and MySQL. It provides RESTful APIs for managing inventory and warehouse locations.<b> The APIs allow users to perform operations such as adding, updating, and deleting inventory items, managing warehouse locations, and performing putaway operations to allocate inventory to specific locations.</b> The application also supports features like pagination, authentication, and caching for improved performance.
 
 # Table of Contents
 - Requirement
