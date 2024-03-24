@@ -1,10 +1,10 @@
 package com.app.whse.data;
 
 public class InventoryInLocation {
-    private Long id;
-    private Long inventoryId;
+    private int id;
+    private int inventoryId;
     private String inventoryName;
-    private Long locationId;
+    private int locationId;
     private String locationName;
     private int count;
     
@@ -12,7 +12,7 @@ public class InventoryInLocation {
     	
     }
     
-	public InventoryInLocation(Long inventoryId, String inventoryName, Long locationId, String locationName,
+	public InventoryInLocation(int inventoryId, String inventoryName, int locationId, String locationName,
 			int count) {
 		super();
 		
@@ -22,16 +22,16 @@ public class InventoryInLocation {
 		this.locationName = locationName;
 		this.count = count;
 	}
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
-	public Long getInventoryId() {
+	public int getInventoryId() {
 		return inventoryId;
 	}
-	public void setInventoryId(Long inventoryId) {
+	public void setInventoryId(int inventoryId) {
 		this.inventoryId = inventoryId;
 	}
 	public String getInventoryName() {
@@ -40,10 +40,10 @@ public class InventoryInLocation {
 	public void setInventoryName(String inventoryName) {
 		this.inventoryName = inventoryName;
 	}
-	public Long getLocationId() {
+	public int getLocationId() {
 		return locationId;
 	}
-	public void setLocationId(Long locationId) {
+	public void setLocationId(int locationId) {
 		this.locationId = locationId;
 	}
 	public String getLocationName() {

@@ -9,43 +9,31 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.app.whse.data.Location;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.app.whse.data.InventoryInLocation;
+import com.app.whse.data.Result;
 
 public class InventoryInLocationDAO {
 
 	private final String url;
     private final String username;
     private final String password;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(InventoryInLocationDAO.class);
     public InventoryInLocationDAO(String url, String username, String password) {
         this.url = url;
         this.username = username;
         this.password = password;
     }
-    public Location findLocationIdByName(String locationName) {
-        Location location = null;
-        try (Connection connection = DriverManager.getConnection(url, username, password);
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM LOCATION WHERE LOCATION_NAME = ?");
-        ) {
-            preparedStatement.setString(1, locationName);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    location = mapResultSetToLocation(resultSet);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return location;
-    }
-	public InventoryInLocation findByInventoryIdAndLocationId(Long itemId, Long locationId) {
+ 
+	public InventoryInLocation findByInventoryIdAndLocationId(String itemName, String locationName) {
 		InventoryInLocation wmInv = null ;
 		try(Connection connection = DriverManager.getConnection(url,username,password);
-		PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM WMINVENTORY WHERE INVENTORY_ID=? AND LOCATION_ID=?");
+		PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM INVENTORYLOCATION WHERE INVENTORYNAME=? AND LOCATIONNAME=?");
 		){
-			preparedStatement.setInt(1,itemId.intValue());
-			preparedStatement.setInt(2,locationId.intValue());
+			preparedStatement.setString(1,itemName);
+			preparedStatement.setString(2,locationName);
 			
 			 try (ResultSet resultSet = preparedStatement.executeQuery()) {
 	                if (resultSet.next()) {
@@ -60,58 +48,11 @@ public class InventoryInLocationDAO {
 		
 		return wmInv;
 	}
-	public void add(InventoryInLocation newItem) {
-		String sql = "INSERT INTO WMINVENTORY (INVENTORY_ID,INVENTORY_NAME,LOCATION_ID,LOCATION_NAME,COUNT) VALUES(?,?,?,?,?)";
-		try (Connection connection = DriverManager.getConnection(url,username,password);
-				PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);){
-			//preparedStatement.setLong(1,newItem.getId());
-			preparedStatement.setLong(1,newItem.getInventoryId());
-			preparedStatement.setString(2,newItem.getInventoryName());
-			preparedStatement.setLong(3,newItem.getLocationId());
-			preparedStatement.setString(4,newItem.getLocationName());
-			preparedStatement.setLong(5,newItem.getCount());
-			
-			int affectedrows= preparedStatement.executeUpdate();
-			if(affectedrows==0) {
-				throw new SQLException("Couldn't create InventoryInLocation,no rows affected.");
-			}
-			
-			try(ResultSet generatedKeys = preparedStatement.getGeneratedKeys()){
-				if(generatedKeys.next()) {
-					newItem.setId(generatedKeys.getLong(1));
-				}else {
-					throw new SQLException("Couldn't create InventoryInLocation, no ID obtained.");
-				}
-			}
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-	public void update(InventoryInLocation existingItem) {
-		String sql = "UPDATE WMINVENTORY SET INVENTORY_ID =? , INVENTORY_NAME =? ,LOCATION_ID =?, LOCATION_NAME =?, COUNT =? WHERE ID = ?";
-		try(Connection connection = DriverManager.getConnection(url,username,password);
-				PreparedStatement statement = connection.prepareStatement(sql)){
-			
-			statement.setLong(1,existingItem.getInventoryId());
-			statement.setString(2,existingItem.getInventoryName());
-			statement.setLong(3,existingItem.getLocationId());
-			statement.setString(4,existingItem.getLocationName());
-			statement.setLong(5,existingItem.getCount());
-			statement.setLong(6,existingItem.getId());
-			
-			int affectedRows = statement.executeUpdate();
-            if (affectedRows == 0) {
-                throw new SQLException("Couldn't update InventoryInLocation, no rows affected.");
-            }
-			
-		}catch(Exception e) {
-			
-		}
-	}
+	
+	
 	 public List<InventoryInLocation> findAll() {
 	        List<InventoryInLocation> wminventories = new ArrayList<>();
-	        String sql = "SELECT * FROM WMINVENTORY";
+	        String sql = "SELECT * FROM INVENTORYLOCATION";
 
 	        try (Connection connection = DriverManager.getConnection(url, username, password);
 	             Statement statement = connection.createStatement();
@@ -127,55 +68,122 @@ public class InventoryInLocationDAO {
 
 	        return wminventories;
 	    }
+
+	 public Result search(String inventoryname, String locationname, int count,int inventoryId,int locationId ,int limit, int offset) {
+	        List<InventoryInLocation> locations = new ArrayList<>();
+	        Result result = new Result();
+	        try (Connection conn = DriverManager.getConnection(url,username,password)) {
+	            String sql = "SELECT * FROM INVENTORYLOCATION WHERE inventoryname LIKE ? AND locationname LIKE ? AND count LIKE ? AND inventoryid LIKE ? AND locationid LIKE ? LIMIT ? OFFSET ?";
+	            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+	                stmt.setString(1, "%" + inventoryname + "%");
+	                stmt.setString(2, "%" + locationname + "%");
+	                stmt.setString(3, "%" + count + "%");
+	                stmt.setString(4, "%" + inventoryId + "%");
+	                stmt.setString(5, "%" + locationId + "%");
+	                stmt.setInt(6, limit);
+	                stmt.setInt(7, offset);
+	                try (ResultSet rs = stmt.executeQuery()) {
+	                    while (rs.next()) {
+	                    	InventoryInLocation inventoryInLocation = mapResultSetToInventoryInLocation(rs);
+	                        result.setSuccess(true);
+	                        locations.add(inventoryInLocation);
+	                    }
+	                    if(result.isSuccess()) {
+	                    	result.setDataObject(locations);
+	                    }
+	                }
+	            }
+	        }catch(Exception e) {
+	        	e.printStackTrace();
+	        	result.setMessage("No data");
+	        }
+	        return result;
+	    }
+
+	public Result update(InventoryInLocation invInLoc) {
+
+		String query ="UPDATE INVENTORYLOCATION SET INVENTORYID =?, INVENTORYNAME=?, LOCATIONID=?, LOCATIONNAME=?, COUNT =? WHERE ID=?";
+		Result result = null;
+		try(Connection connection = DriverManager.getConnection(url,username,password);
+				PreparedStatement preparedStatement = connection.prepareStatement(query);){
+			
+			preparedStatement.setInt(1,invInLoc.getInventoryId());
+			preparedStatement.setString(2,invInLoc.getInventoryName());
+			preparedStatement.setInt(3,invInLoc.getLocationId());
+			preparedStatement.setString(4,invInLoc.getLocationName());
+			preparedStatement.setInt(5,invInLoc.getCount());
+			preparedStatement.setInt(6,invInLoc.getId());
+			
+			 int affectedRows = preparedStatement.executeUpdate();
+	            if (affectedRows > 0) {
+	            	result = new Result(true,200,"Updated successfully",invInLoc);
+	            } else {
+	            	result = new Result(false,404,"location NOT FOUND",null);
+	            }
+	        } catch (SQLException e) {
+	        	
+	        	e.printStackTrace();
+	            result = new Result(false,400,"Update failed "+e.getMessage(),null);
+	        
+	        }
+	        
+	        return result;
+	}
+
+	public Result create(InventoryInLocation invInLoc) {
+
+		String query ="INSERT INTO INVENTORYLOCATION( INVENTORYID, INVENTORYNAME, LOCATIONID, LOCATIONNAME, COUNT ) VALUES( ?,?,?,?,?)";
+		Result result = null;
+		try(Connection connection = DriverManager.getConnection(url,username,password);
+				PreparedStatement preparedStatement = connection.prepareStatement(query,Statement.RETURN_GENERATED_KEYS);){
+			
+			preparedStatement.setInt(1,invInLoc.getInventoryId());
+			preparedStatement.setString(2,invInLoc.getInventoryName());
+			preparedStatement.setInt(3,invInLoc.getLocationId());
+			preparedStatement.setString(4,invInLoc.getLocationName());
+			preparedStatement.setInt(5,invInLoc.getCount());
+			
+			
+			 int affectedRows = preparedStatement.executeUpdate();
+			 if (affectedRows == 0) {
+	            	result = new Result(false,200,"Creation failed",invInLoc);
+	            }
+			 if (affectedRows == 1) {
+	            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+	                if (generatedKeys.next()) {
+	                	invInLoc.setId(generatedKeys.getInt(1));
+
+	                    result = new Result(true,200,"Created successfully",invInLoc);
+	                } else {
+	                	result = new Result(false,200,"Creation failed",invInLoc);
+	                }
+	            
+			 }
+	        } catch(NullPointerException e1) {
+	        	LOGGER.error("Exception occured "+e1.getMessage());
+	            e1.printStackTrace();           
+	            result = new Result(false,500,"Please populate other fileds of InventoryLocation(inventoryname,inventoryid,locationname,locationId,count)"+e1.getMessage(),null);
+	        } catch (SQLException e) {
+	        	LOGGER.error("Exception occured "+e.getMessage());
+	            e.printStackTrace();           
+	            result = new Result(false,400,"Creation failed "+e.getMessage(),null);
+	        }
+
+	        return result;
+	}
+	
 	 private InventoryInLocation mapResultSetToInventoryInLocation(ResultSet resultSet) throws SQLException {
 	        int id = resultSet.getInt("id");
-	        Long inventoryId = resultSet.getLong("inventory_id");
-	        String inventoryName = resultSet.getString("inventory_name");
-	        Long locationId = resultSet.getLong("location_id");
-	        String locationName = resultSet.getString("location_name");
+	        int inventoryId = resultSet.getInt("inventoryid");
+	        String inventoryName = resultSet.getString("inventoryname");
+	        int locationId = resultSet.getInt("locationid");
+	        String locationName = resultSet.getString("locationname");
 	        int count = resultSet.getInt("count");
 
 	        InventoryInLocation wminv=  new InventoryInLocation( inventoryId, inventoryName, locationId, locationName, count);
-	        wminv.setId((long) id);
+	        wminv.setId(id);
 	        return wminv;
 	    }
 	 
-	 
-	 private Location mapResultSetToLocation(ResultSet resultSet) throws SQLException {
-	        int id = resultSet.getInt("location_id");
-	        String locationName = resultSet.getString("location_name");
-	        String locationType = resultSet.getString("location_type");
-	        String dimension = resultSet.getString("dimension");
-	        int onHandQty = resultSet.getInt("onhand_qty");
-	        int maxQty = resultSet.getInt("max_qty");
-
-	        Location location=  new Location( locationName, locationType, dimension, onHandQty,maxQty);
-	        location.setLocationId((long) id);
-	        return location;
-	    }
-	 public List<InventoryInLocation> search(String query, int limit, int offset) {
-	        List<InventoryInLocation> inventoryList = new ArrayList<>();
-	        String sql = "SELECT * FROM WMINVENTORY WHERE LOCATION_NAME LIKE ? OR INVENTORY_NAME LIKE ? LIMIT ? OFFSET ?";
-	        
-	        try (Connection connection = DriverManager.getConnection(url,username,password);
-	             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-	            
-	            preparedStatement.setString(1, "%" + query + "%");
-	            preparedStatement.setString(2, "%" + query + "%");
-	            preparedStatement.setInt(3, limit);
-	            preparedStatement.setInt(4, offset);
-	            
-	            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-	                while (resultSet.next()) {
-	                	InventoryInLocation inventory = mapResultSetToInventoryInLocation(resultSet);
-	                    
-	                    inventoryList.add(inventory);
-	                }
-	            }
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
-	        
-	        return inventoryList;
-	    }
+	
 }

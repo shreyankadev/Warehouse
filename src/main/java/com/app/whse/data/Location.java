@@ -1,7 +1,7 @@
 package com.app.whse.data;
 
 public class Location {
-    private Long locationId;
+    private int locationId;
     private String locationName;
     private String locationType;
     private String dimension;
@@ -21,11 +21,11 @@ public class Location {
     }
 
     // Getters and Setters
-    public Long getLocationId() {
+    public int getLocationId() {
         return locationId;
     }
 
-    public void setLocationId(Long locationId) {
+    public void setLocationId(int locationId) {
         this.locationId = locationId;
     }
 

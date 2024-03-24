@@ -1,7 +1,9 @@
+com\app\whse\data\Result.class
 com\app\whse\resource\LocationResource.class
 com\app\whse\data\Inventory.class
 com\app\whse\resource\InventoryInLocationResource.class
 com\app\whse\application\App.class
+com\app\whse\service\InventoryInLocationService.class
 com\app\whse\data\Inventory$status.class
 com\app\whse\resource\InventoryResource.class
 com\app\whse\config\WMConfiguration.class

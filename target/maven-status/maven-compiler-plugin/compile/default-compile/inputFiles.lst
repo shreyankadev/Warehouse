@@ -2,6 +2,7 @@ C:\Projects\dropwizard-demo\src\main\java\com\app\whse\data\Inventory.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\data\InventoryInLocation.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\application\App.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\config\WMConfiguration.java
+C:\Projects\dropwizard-demo\src\main\java\com\app\whse\service\InventoryInLocationService.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\dao\DatabaseHealthCheck.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\resource\HealthCheckResource.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\resource\InventoryResource.java
@@ -13,5 +14,6 @@ C:\Projects\dropwizard-demo\src\main\java\com\app\whse\service\LocationService.j
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\dao\InventoryInLocationDAO.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\dao\LocationDAO.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\resource\LocationResource.java
+C:\Projects\dropwizard-demo\src\main\java\com\app\whse\data\Result.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\resource\InventoryInLocationResource.java
 C:\Projects\dropwizard-demo\src\main\java\com\app\whse\auth\BasicAuthenticationFilter.java

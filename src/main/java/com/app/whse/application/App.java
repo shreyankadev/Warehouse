@@ -18,6 +18,7 @@ import com.app.whse.resource.HealthCheckResource;
 import com.app.whse.resource.InventoryInLocationResource;
 import com.app.whse.resource.InventoryResource;
 import com.app.whse.resource.LocationResource;
+import com.app.whse.service.InventoryInLocationService;
 import com.app.whse.service.InventoryService;
 import com.app.whse.service.LocationService;
 
@@ -57,12 +58,13 @@ public class App extends Application<WMConfiguration>{
 			//Services
 			InventoryService service = new InventoryService(InventoryDao,cacheService);
 			LocationService lservice = new LocationService(locationDao,cacheService);
+			InventoryInLocationService iLService = new InventoryInLocationService(inventoryLocDao,InventoryDao,locationDao,cacheService);
 			
 			//Registeries 
 			environment.jersey().register(new BasicAuthenticationFilter());
 			environment.jersey().register(new HealthCheckResource(healthCheck));
 			environment.jersey().register(new InventoryResource(service));
-			environment.jersey().register(new InventoryInLocationResource(inventoryLocDao,InventoryDao,locationDao,cacheService));
+			environment.jersey().register(new InventoryInLocationResource(iLService));
 			environment.jersey().register(new LocationResource(lservice));
 			
 		}

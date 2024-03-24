@@ -2,10 +2,10 @@ package com.app.whse.service;
 
 import java.util.List;
 import java.util.Map;
-
 import com.app.whse.cache.CacheService;
 import com.app.whse.dao.LocationDAO;
 import com.app.whse.data.Location;
+import com.app.whse.data.Result;
 
 import jakarta.ws.rs.core.Response;
 
@@ -20,21 +20,32 @@ public class LocationService {
 	}
 
 	public Response getAllLocations() {
-		List<Location> list = (List<Location>) cache.get("getAllLocations");
-		if(list!= null) {
-			return Response.ok(list).build();
+		Object cachedData = cache.get("getAllLocations");
+		if (cachedData != null) {
+			return Response.ok(cachedData).build();
 		}
-		list = dao.getAllLocations();
-		cache.put("getAllLocations",list);
-		return Response.ok(list).build();
+		Result result = dao.getAllLocations();
+		
+		if(result.isSuccess()) {
+			cache.put("getAllLocations",result.getDataObject());
+			return Response.status(result.getCode()).entity(result.getDataObject()).build();
+		}
+		
+		return Response.status(result.getCode()).entity(result.getMessage()).build();
 	}
 
-	public Location addLocation(Location location) {
+	public Response addLocation(Location location) {
+		if(location == null) {
+			return Response.status(Response.Status.BAD_REQUEST).entity("No Request Body").build();
+		}
+		Result result = dao.addLocation(location);
 		
-		Location loc = dao.addLocation(location);
-		if(loc!= null)
+		if(result.isSuccess()) {
 			cache.invalidate("getAllLocations");
-		return loc;
+			return Response.status(result.getCode()).entity(result.getDataObject()).build();
+		}
+		return Response.status(result.getCode()).entity(result.getMessage()).build();
+		
 	}
 
 	public Response getLocationById(int id) {
@@ -42,34 +53,71 @@ public class LocationService {
 		if(location!= null) {
 			return Response.ok(location).build();
 		}
-		Response response = dao.getLocationById(id);
-		cache.put("getLocation"+id, response.readEntity(Location.class));
-		return response;
+		Result result = dao.getLocationById(id);
+			
+		if(result.isSuccess()) {
+			cache.put("getLocation"+id,result.getDataObject());
+			return Response.status(result.getCode()).entity(result.getDataObject()).build();
+		}
+		return Response.status(result.getCode()).entity(result.getMessage()).build();
+		
 	}
 
 	public Response deleteLocation(int id) {
-		cache.invalidate("getLocation"+id);
-		cache.invalidate("getAllLocations");
-		return dao.deleteLocation(id);
+		
+		Result result =  dao.deleteLocation(id);
+		
+		if(result.isSuccess()) {
+			cache.invalidate("getAllLocations");
+			cache.invalidate("getLocation"+id);
+			return Response.status(result.getCode()).entity(result.getMessage()+result.getDataObject()).build();
+		}
+        
+    	return Response.status(result.getCode()).entity(result.getMessage()).build();
 	}
 
 	public Response updateLocation(int id, Location location) {
-		cache.invalidate("getLocation"+id);
-		cache.invalidate("getAllLocations");
-		return dao.updateLocation(id,location);
+		if(location == null) {
+			return Response.status(Response.Status.BAD_REQUEST).entity("No Request Body").build();
+		}
+		
+		Result result = dao.updateLocation(id,location);
+
+		if(result.isSuccess()) {
+			cache.invalidate("getAllLocations");
+			cache.put("getLocation"+id, result.getDataObject());
+			return Response.status(result.getCode()).entity(result.getDataObject()).build();
+		}
+		return Response.status(result.getCode()).entity(result.getMessage()).build();
 	}
 
-	public void partialUpdateInventory(int id, Map<String, Object> updates) {
-		cache.invalidate("getLocation"+id);
-		cache.invalidate("getAllLocations");
-		dao.partialUpdateInventory(id,updates);
+	public Response partialUpdateLocation(int id, Map<String, Object> updates) {
+		if(updates == null || updates.size() == 0) {
+			return Response.status(Response.Status.BAD_REQUEST).entity("No Request Body").build();
+		}
+		
+		Result result = dao.partialUpdateLocation(id,updates);
+		
+		if(result.isSuccess()) {
+			cache.invalidate("getLocation"+id);
+			cache.invalidate("getAllLocations");
+		}	
+		return Response.status(result.getCode()).entity(result.getMessage()+result.getDataObject()).build();
 		
 	}
 
 	public Response getLocationByType(String type) {
-        List<Location> list = dao.getLocationByType(type);
-
-        return Response.ok(list).build();
+		Object cachedData = cache.get("typeLoc"+type);
+		if (cachedData != null) {
+			return Response.ok(cachedData).build();
+		}
+        Result result = dao.getLocationByType(type);
+        
+        if(result.isSuccess()) {
+			cache.put("typeLoc"+type,result.getDataObject());
+			return Response.status(result.getCode()).entity(result.getDataObject()).build();
+		}
+		return Response.status(result.getCode()).entity(result.getMessage()).build();
        
 	}
 	

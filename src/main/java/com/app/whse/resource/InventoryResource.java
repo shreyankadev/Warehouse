@@ -31,6 +31,7 @@ public class InventoryResource {
 
     private final InventoryService service;
     private static final Logger LOGGER = LoggerFactory.getLogger(InventoryResource.class);
+    
     public InventoryResource(InventoryService service) {
         this.service = service;
     }
@@ -41,7 +42,7 @@ public class InventoryResource {
     }
 
     @POST
-    public Inventory addItem(Inventory item) {
+    public Response addItem(Inventory item) {
         return service.create(item);
     }
 
@@ -72,8 +73,8 @@ public class InventoryResource {
     
     @PATCH
     @Path("/{id}")
-    public void partialUpdateInventory(@PathParam("id") int id,Map<String, Object> updates) {
-        service.partialUpdateInventory(id,updates);
+    public Response partialUpdateInventory(@PathParam("id") int id,Map<String, Object> updates) {
+       return service.partialUpdateInventory(id,updates);
     }
 }
 

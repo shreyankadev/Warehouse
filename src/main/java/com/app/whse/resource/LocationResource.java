@@ -1,13 +1,7 @@
 package com.app.whse.resource;
 
-import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.app.whse.cache.CacheService;
-import com.app.whse.dao.LocationDAO;
 import com.app.whse.data.Location;
 import com.app.whse.service.LocationService;
 
@@ -31,7 +25,7 @@ import jakarta.ws.rs.core.Response;
 public class LocationResource {
 	
 	private final LocationService service;
-	private static final Logger LOGGER = LoggerFactory.getLogger(LocationResource.class);
+	
 	
     public LocationResource(LocationService locationDao) {
         this.service = locationDao;
@@ -43,8 +37,9 @@ public class LocationResource {
     }
     
     @POST
-    public Location creatLocaton(Location location){
+    public Response creatLocaton(Location location){
     	return service.addLocation(location);
+    	
     }
     
     @GET
@@ -72,7 +67,7 @@ public class LocationResource {
     }
     @PATCH
     @Path("/{id}")
-    public void partialUpdateInventory(@PathParam("id") int id,Map<String, Object> updates) {
-    	service.partialUpdateInventory(id,updates);
+    public void partialUpdateLocation(@PathParam("id") int id,Map<String, Object> updates) {
+    	service.partialUpdateLocation(id,updates);
     }
 }
