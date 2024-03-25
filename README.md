@@ -10,14 +10,15 @@ Warehouse contains Inventories, locations
  - Information of Locations and count of inventories present at moment are stored in Location table, 
  - InventoryLocation table contains the information of number of inventory present in specifc location
  - Once putaway operation (put inventory received in warehouse to specific location) are done
-     -- status of Inventory changes to putaway (putaway operation can be performed only once for each inventory)
-     -- count of inventories increases in location.
-     -- Inventory status changes to "PUTAWAY".
-     -- API to update partial data is available for Inventory and Location.
-     -- Advance search operation is available on InventoryLocation
-     -- frequentl accessed data is cached
-     -- APIs are secured with Basic authentication
-   --
+     #### -  status of Inventory changes to putaway (putaway operation can be performed only once for each inventory)
+     #### -  count of inventories increases in location.
+     #### -  Inventory status changes to "PUTAWAY".
+     #### -  API to update partial data is available for Inventory and Location.
+     #### -  Advance search operation is available on InventoryLocation
+     #### -  frequently accessed data is cached
+     #### -  APIs are secured with Basic authentication
+     #### -  Special APIS are implemeted along with cache and Basic AUTH [Putaway, Partial update ,advanced search with pagination,Get of a type, healthcheck] 
+   
 
 
 
